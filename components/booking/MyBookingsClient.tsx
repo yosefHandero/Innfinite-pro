@@ -55,6 +55,7 @@ const {userId} = useAuth();
 const router =  useRouter();
 const {Hotel, Room} =  booking;
 
+const {toast} = useToast()
 if(!Hotel || !Room) return <div>Missing Data...</div>
 
 const country = getCountryByCode(Hotel.country)
@@ -63,7 +64,6 @@ const state = getStateByCode(Hotel.state , Hotel.country )
 const startDate = moment(booking.startDate).format( 'YYYY-MM-DD');
 const endDate = moment(booking.endDate).format('YYYY-MM-DD') ;
 const dayCount = differenceInCalendarDays(booking.endDate, booking.startDate)
-const {toast} = useToast()
 
 
 
