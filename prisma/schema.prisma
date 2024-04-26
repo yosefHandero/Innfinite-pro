@@ -5,10 +5,12 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma- -js"
+  provider = "prisma-  -js"
    previewFeatures = ["fullTextSearch", "fullTextIndex"]
 
 }
+
+
 
 
 model Hotel {
