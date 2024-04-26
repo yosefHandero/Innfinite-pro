@@ -5,11 +5,13 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-  -js"
+  provider = "prisma- client -js"
    previewFeatures = ["fullTextSearch", "fullTextIndex"]
 
 }
-
+// generator client {
+//   provider = "prisma-client-js"
+// }
 
 
 
