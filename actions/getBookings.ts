@@ -15,8 +15,8 @@ export const getBookings  = async (hotelId: string) => {
             }
         })
         return bookings;
-    } catch (error: any) {
-        console.log(error)
-        throw new Error(error)
+    } catch (error: unknown) {
+        console.error('Error fetching bookings:', error);
+        throw new Error(error instanceof Error ? error.message : 'Failed to fetch bookings');
     }
 }

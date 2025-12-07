@@ -15,6 +15,20 @@ export async function PATCH(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+    
+    // Check if hotel exists and user owns it
+    const existingHotel = await prismadb.hotel.findUnique({
+      where: { id: params.hotelId },
+    });
+    
+    if (!existingHotel) {
+      return new NextResponse("Hotel not found", { status: 404 });
+    }
+    
+    if (existingHotel.userId !== userId) {
+      return new NextResponse("Forbidden: You don't own this hotel", { status: 403 });
+    }
+    
     const hotel = await prismadb.hotel.update({
       where: { id: params.hotelId },
       data: { ...body },
@@ -38,6 +52,20 @@ export async function DELETE(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+    
+    // Check if hotel exists and user owns it
+    const existingHotel = await prismadb.hotel.findUnique({
+      where: { id: params.hotelId },
+    });
+    
+    if (!existingHotel) {
+      return new NextResponse("Hotel not found", { status: 404 });
+    }
+    
+    if (existingHotel.userId !== userId) {
+      return new NextResponse("Forbidden: You don't own this hotel", { status: 403 });
+    }
+    
     const hotel = await prismadb.hotel.delete({
       where: { id: params.hotelId },
     });

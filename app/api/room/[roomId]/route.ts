@@ -15,13 +15,28 @@ export async function PATCH(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+    
+    // Check if room exists and user owns the hotel
+    const existingRoom = await prismadb.room.findUnique({
+      where: { id: params.roomId },
+      include: { Hotel: true },
+    });
+    
+    if (!existingRoom) {
+      return new NextResponse("Room not found", { status: 404 });
+    }
+    
+    if (existingRoom.Hotel.userId !== userId) {
+      return new NextResponse("Forbidden: You don't own this hotel", { status: 403 });
+    }
+    
     const room = await prismadb.room.update({
       where: { id: params.roomId },
       data: { ...body },
     });
     return NextResponse.json(room);
   } catch (error) {
-    console.error("Error at /api/room/hotelId PATCH", error);
+    console.error("Error at /api/room/roomId PATCH", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
@@ -38,6 +53,21 @@ export async function DELETE(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+    
+    // Check if room exists and user owns the hotel
+    const existingRoom = await prismadb.room.findUnique({
+      where: { id: params.roomId },
+      include: { Hotel: true },
+    });
+    
+    if (!existingRoom) {
+      return new NextResponse("Room not found", { status: 404 });
+    }
+    
+    if (existingRoom.Hotel.userId !== userId) {
+      return new NextResponse("Forbidden: You don't own this hotel", { status: 403 });
+    }
+    
     const room = await prismadb.room.delete({
       where: { id: params.roomId },
     });

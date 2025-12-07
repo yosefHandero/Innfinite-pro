@@ -14,6 +14,20 @@ export async function PATCH(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+    
+    // Verify booking exists and belongs to user
+    const existingBooking = await prismadb.booking.findUnique({
+      where: { paymentIntentId: params.Id },
+    });
+    
+    if (!existingBooking) {
+      return new NextResponse("Booking not found", { status: 404 });
+    }
+    
+    if (existingBooking.userId !== userId) {
+      return new NextResponse("Forbidden: You don't own this booking", { status: 403 });
+    }
+    
     const booking = await prismadb.booking.update({
       where: { paymentIntentId: params.Id },
       data: { paymentStatus: true },
@@ -37,6 +51,20 @@ export async function DELETE(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+    
+    // Check if booking exists and user owns it
+    const existingBooking = await prismadb.booking.findUnique({
+      where: { id: params.Id },
+    });
+    
+    if (!existingBooking) {
+      return new NextResponse("Booking not found", { status: 404 });
+    }
+    
+    if (existingBooking.userId !== userId) {
+      return new NextResponse("Forbidden: You don't own this booking", { status: 403 });
+    }
+    
     const booking = await prismadb.booking.delete({
       where: { id: params.Id },
     });
@@ -53,7 +81,7 @@ export async function GET(
   try {
     const { userId } = auth();
     if (!params.Id) {
-      return new NextResponse("Hotel ID is required", { status: 400 });
+      return new NextResponse("Room ID is required", { status: 400 });
     }
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });

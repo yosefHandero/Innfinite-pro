@@ -38,11 +38,15 @@ import { useAuth } from "@clerk/nextjs";
 import useBookRoom from "@/hooks/useBookRoom";
 import useLocation from "@/hooks/useLocation";
 import moment from "moment";
+import { motion } from "framer-motion";
+import { Badge } from "../ui/badge";
+import { CheckCircle, XCircle } from "lucide-react";
 
 interface MyBookingsClientProps {
 booking:Booking & {Room:Room | null} &{Hotel:Hotel | null};
+index?: number;
 }
-const MyBookingsClient: React.FC<MyBookingsClientProps> = ({ booking }) => {
+const MyBookingsClient: React.FC<MyBookingsClientProps> = ({ booking, index = 0 }) => {
   const {setRoomData,
      paymentIntentId,
      setClientSecret, 
@@ -136,24 +140,41 @@ const dayCount = differenceInCalendarDays(booking.endDate, booking.startDate)
     }
   
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{Hotel.title}</CardTitle>
-        <CardDescription>
-            <div className="font-semibold mt-4">
-            <AmenityItem> <MapPin className="size-4"/>
-            {country?.name}, {state?.name}, {Hotel.city}
-            </AmenityItem>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.1 }}
+    >
+    <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <CardTitle className="text-lg line-clamp-1">{Hotel.title}</CardTitle>
+          {booking.paymentStatus ? (
+            <Badge variant="success" className="flex-shrink-0">
+              <CheckCircle className="h-3 w-3 mr-1" />
+              Paid
+            </Badge>
+          ) : (
+            <Badge variant="destructive" className="flex-shrink-0">
+              <XCircle className="h-3 w-3 mr-1" />
+              Unpaid
+            </Badge>
+          )}
         </div>
-          <p className="text-primary/90 mb-2 py-2">{Hotel.locationDescription}</p>
-
+        <CardDescription className="space-y-2">
+          <AmenityItem>
+            <MapPin className="size-4"/>
+            {country?.name}, {state?.name}, {Hotel.city}
+          </AmenityItem>
+          <p className="text-sm text-muted-foreground line-clamp-2">{Hotel.locationDescription}</p>
         </CardDescription>
-
-        <CardTitle>{Room.title}</CardTitle>
-        <CardDescription>{Room.description}</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="aspect-square overflow-hidden relative h-[200px] rounded-lg">
+      <CardContent className="flex flex-col gap-4 flex-1">
+        <div>
+          <h3 className="font-semibold text-base mb-1">{Room.title}</h3>
+          <p className="text-sm text-muted-foreground line-clamp-2">{Room.description}</p>
+        </div>
+        <div className="aspect-square overflow-hidden relative h-[200px] rounded-lg bg-muted">
           <Image
             fill
             src={Room.image}
@@ -263,31 +284,59 @@ const dayCount = differenceInCalendarDays(booking.endDate, booking.startDate)
           )}
         </div>
         <Separator />
-        <div className="flex flex-col gap-2">
-          <CardTitle>Booking Details</CardTitle>
-          <div className="text-primary/90">
-            <div>Room booked by {booking.userName} for {dayCount} days = {moment(booking.bookedAt).fromNow()}</div>
-            <div>Check-in {startDate} at 5PM</div>
-            <div>Check-out {endDate} at 5PM</div>
-            {booking.breakFastIncluded && <div>
-                Breakfast  Included
-            </div>}
-            {booking.paymentStatus ? <div className="text-teal-500">
-                Paid: ${booking.totalPrice}- Room Reserved
-            </div> : <div className="text-rose-500">
-                Not Paid ${booking.totalPrice} - Room Not Reserved
-            </div>}
-
+        <div className="space-y-3 bg-muted/50 p-4 rounded-lg">
+          <h4 className="font-semibold text-sm">Booking Details</h4>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Check-in</span>
+              <span className="font-medium">{startDate}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Check-out</span>
+              <span className="font-medium">{endDate}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Duration</span>
+              <span className="font-medium">{dayCount} night{dayCount > 1 ? 's' : ''}</span>
+            </div>
+            {booking.breakFastIncluded && (
+              <div className="flex items-center gap-2 text-success">
+                <CheckCircle className="h-4 w-4" />
+                <span className="text-sm">Breakfast included</span>
+              </div>
+            )}
+            <Separator />
+            <div className="flex justify-between items-baseline">
+              <span className="text-muted-foreground">Total</span>
+              <span className="text-xl font-bold">${booking.totalPrice}</span>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Booked {moment(booking.bookedAt).fromNow()}
+            </div>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex items-center justify-between">
- <Button disabled ={bookingIsLoading} variant="secondary" onClick={()=>router.push(`/hotel-details/${Hotel.id}`)}>View Hotel</Button>
-    {!booking.paymentStatus && booking.userId === userId  &&   <Button disabled = {bookingIsLoading} onClick={()=> handleBookRoom()}>{bookingIsLoading ? "Processing...": "Pay Now"}</Button>
-}
+      <CardFooter className="flex items-center gap-2 pt-4">
+        <Button 
+          disabled={bookingIsLoading} 
+          variant="outline" 
+          onClick={()=>router.push(`/hotel-details/${Hotel.id}`)}
+          className="flex-1"
+        >
+          View Hotel
+        </Button>
+        {!booking.paymentStatus && booking.userId === userId && (
+          <Button 
+            disabled={bookingIsLoading} 
+            onClick={()=> handleBookRoom()}
+            className="flex-1"
+          >
+            {bookingIsLoading ? "Processing..." : "Pay Now"}
+          </Button>
+        )}
       </CardFooter>
-   
     </Card>
+    </motion.div>
   );
 };
 

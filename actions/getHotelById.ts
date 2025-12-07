@@ -1,6 +1,6 @@
 import prismadb from "@/lib/prismadb";
 
-export const getHotelbyId = async (hotelId: string) => {
+export const getHotelById = async (hotelId: string) => {
   try {
     const hotel = await prismadb.hotel.findUnique({
       where: { id: hotelId },
@@ -8,7 +8,8 @@ export const getHotelbyId = async (hotelId: string) => {
     });
     if (!hotel) return null;
     return hotel;
-  } catch (error: any) {
-    throw new Error(error);
+  } catch (error: unknown) {
+    console.error('Error fetching hotel:', error);
+    throw new Error(error instanceof Error ? error.message : 'Failed to fetch hotel');
   }
 };

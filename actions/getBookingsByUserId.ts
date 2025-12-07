@@ -19,9 +19,8 @@ export const getBookingsByUserId = async()=> {
         })
         if(!bookings) return null
         return bookings;
-    } catch (error:any) {
-        console.log(error)
-        throw new Error(error);
-        
+    } catch (error: unknown) {
+        console.error('Error fetching bookings by user:', error);
+        throw new Error(error instanceof Error ? error.message : 'Failed to fetch bookings');
     }
 }

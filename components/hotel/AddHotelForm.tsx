@@ -3,7 +3,8 @@
 import { Hotel, Room } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect } from "react"; // Ensure React is imported when using JSX/TSX syntax
+import React, { useEffect } from "react";
+import { HotelWithRooms } from "@/lib/types";
 
 import * as z from "zod";
 import {
@@ -62,9 +63,6 @@ interface AddHotelFormProps {
   hotel: HotelWithRooms | null;
 }
 
-export type HotelWithRooms = Hotel & {
-  rooms: Room[];
-};
 const formSchema = z.object({
   title: z.string().min(3, {
     message: "Title should be at least 3 characters long!",
@@ -658,7 +656,7 @@ const AddHotelForm = ({ hotel }: AddHotelFormProps) => {
                   </FormItem>
                 )}
               />
-              {hotel && !hotel.rooms.length && 
+              {hotel && !hotel.rooms.length && (
                 <Alert className="bg-blue-800 text-white">
                   <Terminal className="h-4 w-4 stroke-white" />
                   <AlertTitle>One last step!</AlertTitle>
@@ -667,7 +665,7 @@ const AddHotelForm = ({ hotel }: AddHotelFormProps) => {
                     <div>Please add rooms to complete your setup</div>
                   </AlertDescription>
                 </Alert>
-              }
+              )}
 
               <div className="flex justify-between gap-2 flex-wrap">
                 {hotel && (
@@ -761,11 +759,11 @@ const AddHotelForm = ({ hotel }: AddHotelFormProps) => {
                   <Separator />
                   <h3 className="text-lg font-semibold my-4">Hotel Rooms</h3>
                   <div className="grid grid-cols-1 2xl:grid-cols-2 gap-6 ">
-                      {hotel.rooms.map((room) => {
-                        return (
-                          <RoomCard key={room.id} hotel={hotel} room={room} />
-                        );
-                      })}
+                    {hotel.rooms.map((room) => {
+                      return (
+                        <RoomCard key={room.id} hotel={hotel} room={room} />
+                      );
+                    })}
                   </div>
                 </div>
               )}

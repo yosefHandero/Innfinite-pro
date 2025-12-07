@@ -10,6 +10,11 @@ export async function POST(req:Request) {
             return new NextResponse('Unauthorized', { status: 401 })
         }
 
+        // Basic validation
+        if (!body.title || !body.description || !body.image) {
+            return new NextResponse('Missing required fields', { status: 400 });
+        }
+
         const hotel = await prismadb.hotel.create({
             data:{
                 ...body,

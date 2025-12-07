@@ -6,7 +6,7 @@ import NavBar from "@/components/layout/NavBar";
 import { ThemeProvider } from "@/components/theme-provider"
 import Container from "@/components/Container";
 import { Toaster } from "@/components/ui/toaster"
-import LocationFilter from "@/components/LocationFilter";
+import LocationFilterWrapper from "@/components/layout/LocationFilterWrapper";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -33,14 +33,13 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <Toaster/>
-              <main className="flex flex-col min-h-screen bg-secondary">
-            <NavBar />
-            <LocationFilter/>
-            <section className=" flex">
-             
-              <Container>{children}</Container>
-            </section>
-          </main>
+            <main className="flex flex-col min-h-screen bg-background">
+              <NavBar />
+              <LocationFilterWrapper />
+              <section className="flex-1">
+                <Container>{children}</Container>
+              </section>
+            </main>
           </ThemeProvider>
         
         </body>

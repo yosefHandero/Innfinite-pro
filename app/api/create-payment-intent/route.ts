@@ -9,14 +9,37 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 export async function POST(req: Request) {
     const user = await currentUser()
 
-    if (!user) new NextResponse('unauthorized',  { status: 401 })
+    if (!user) return new NextResponse('unauthorized',  { status: 401 })
     const body = await req.json();
     const {booking, payment_intent_id} = body;
+    
+    if (!booking || !booking.hotelId || !booking.roomId || !booking.hotelOwnerId) {
+        return new NextResponse('Invalid booking data', { status: 400 });
+    }
+    
+    // Verify the room belongs to the hotel
+    const room = await prismadb.room.findUnique({
+        where: { id: booking.roomId },
+    });
+    
+    if (!room || room.hotelId !== booking.hotelId) {
+        return new NextResponse('Room does not belong to the specified hotel', { status: 400 });
+    }
+    
+    // Verify the hotel owner ID matches
+    const hotel = await prismadb.hotel.findUnique({
+        where: { id: booking.hotelId },
+    });
+    
+    if (!hotel || hotel.userId !== booking.hotelOwnerId) {
+        return new NextResponse('Invalid hotel owner', { status: 400 });
+    }
+    
     const bookingData = {
         ...booking,
-        userName: user?.firstName,
-        userEmail: user?.emailAddresses[0]?.emailAddress,
-        userId:  user?.id,
+        userName: user.firstName || 'User',
+        userEmail: user.emailAddresses[0]?.emailAddress || '',
+        userId: user.id,
         currency: 'usd',
         paymentIntentId: payment_intent_id
 
@@ -25,7 +48,7 @@ export async function POST(req: Request) {
    
          if (payment_intent_id) {
         foundBooking = await prismadb.booking.findUnique({
-            where: { paymentIntentId : payment_intent_id, userId: user?.id },
+            where: { paymentIntentId : payment_intent_id, userId: user.id },
         })
     }
     if(foundBooking && payment_intent_id){

@@ -51,8 +51,7 @@ import { differenceInCalendarDays, eachDayOfInterval } from "date-fns";
 import { Checkbox } from "../ui/checkbox";
 import { useAuth } from "@clerk/nextjs";
 import useBookRoom from "@/hooks/useBookRoom";
-import { Client } from "@clerk/nextjs/server";
-// import { Value } from "@radix-ui/react-select";
+import { motion } from "framer-motion";
 
 interface RoomCardProps {
   hotel?: Hotel & {
@@ -216,21 +215,26 @@ roomBookings.forEach(booking => {
     }
   }
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{room.title}</CardTitle>
-        <CardDescription>{room.description}</CardDescription>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-xl">{room.title}</CardTitle>
+        <CardDescription className="line-clamp-2">{room.description}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <div className="aspect-square overflow-hidden relative h-[200px] rounded-lg">
+        <div className="aspect-square overflow-hidden relative h-[250px] rounded-lg bg-muted">
           <Image
             fill
             src={room.image}
             alt={room.title}
-            className="object-cover"
+            className="object-cover transition-transform duration-500 hover:scale-110"
           />
         </div>
-        <div className="grid grid-cols-2 gap-4 content-start text-sm">
+        <div className="grid grid-cols-2 gap-3 content-start text-sm">
           <AmenityItem>
             <Bed className="h-4 w-4" />
             {room.bedCount} Bed{"(s)"}
@@ -317,43 +321,62 @@ roomBookings.forEach(booking => {
           )}
         </div>
         <Separator />
-        <div>
-          <div className="flex gap-4 justify-between">
-            <div>
-              Room Price: <span className="font-bold">${room.roomPrice}</span>{" "}
-              <span className="text-xs"></span>/24hrs
-            </div>
+        <div className="space-y-2">
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-foreground">${room.roomPrice}</span>
+            <span className="text-sm text-muted-foreground">/night</span>
           </div>
           {!!room.breakFastPrice && (
-            <div>
-              BreakFast Price:
-              <span className="font-bold">${room.breakFastPrice}</span>
+            <div className="text-sm text-muted-foreground">
+              Breakfast: <span className="font-semibold text-foreground">+${room.breakFastPrice}</span>/night
             </div>
           )}
         </div>
         <Separator />
       </CardContent>
       {!isBookRoom &&
-      <CardFooter>
+      <CardFooter className="flex-col gap-4 pt-4">
         {HotelDetailsPage ? 
-          <div className="flex flex-col gap-6">
-            <div>
-              <div className="mb-2">Select days</div>
+          <div className="flex flex-col gap-6 w-full">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Select dates</label>
               <DatePickerWithRange date={date} setDate={setDate} disabledDates={disabledDates} />
             </div>
             {
-              room.breakFastPrice > 0 && <div>
-                <div className="mb-2">Do you  want to include breakfast?</div>
-                <div className="flex items-center space-x-2">
+              room.breakFastPrice > 0 && <div className="space-y-2">
+                <label className="text-sm font-medium">Add breakfast?</label>
+                <div className="flex items-center space-x-2 p-3 rounded-lg border border-border bg-muted/50">
                   <Checkbox id="breakfast" onCheckedChange={(value)=>setIncludeBreakFast(!!value)}/>
-                  <label htmlFor="breakfast">Include breakfast in the price</label>
+                  <label htmlFor="breakfast" className="text-sm cursor-pointer">
+                    Include breakfast (+${room.breakFastPrice}/night)
+                  </label>
                 </div>
               </div>
             }
-            <div>Total Price : <span className="font-bold">${totalPrice}</span> for  <span className="font-bold">{days} Day(s)</span></div>
-            <Button onClick={()=> {handleBookRoom()}} disabled = {bookingLoading} type="button"> 
-              {bookingLoading ? <Loader2/> : <Wand2 className="mr-2 h-4 w-4"/>}
-              {bookingLoading ? 'Loading...' : 'Book Room'}
+            <div className="p-4 rounded-lg bg-muted/50 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Total for {days} night{days > 1 ? 's' : ''}</span>
+                <span className="text-2xl font-bold text-foreground">${totalPrice}</span>
+              </div>
+            </div>
+            <Button 
+              onClick={()=> {handleBookRoom()}} 
+              disabled={bookingLoading} 
+              type="button"
+              size="lg"
+              className="w-full"
+            > 
+              {bookingLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="mr-2 h-4 w-4"/>
+                  Reserve Now
+                </>
+              )}
             </Button>
           </div> :  <div className="flex w-full justify-between">
             <Button
@@ -402,6 +425,7 @@ roomBookings.forEach(booking => {
         }
       </CardFooter>}
     </Card>
+    </motion.div>
   );
 };
 

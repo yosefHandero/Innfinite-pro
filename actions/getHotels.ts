@@ -9,7 +9,7 @@ export const getHotels = async (searchParams: {
   try {
     const {title,  country, state, city} = searchParams;
 
-    const hotels = await prismadb.hotel?.findMany({
+    const hotels = await prismadb.hotel.findMany({
         where: {
             title: {
                 contains: title,
@@ -21,8 +21,8 @@ export const getHotels = async (searchParams: {
         include: {rooms: true,}
     });
     return hotels;
-  } catch (error: any) {
-    console.log(error);
-    throw new Error(error);
+  } catch (error: unknown) {
+    console.error('Error fetching hotels:', error);
+    throw new Error(error instanceof Error ? error.message : 'Failed to fetch hotels');
   }
 };

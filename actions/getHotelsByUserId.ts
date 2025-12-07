@@ -1,7 +1,7 @@
 import prismadb from "@/lib/prismadb";
 import { auth } from "@clerk/nextjs";
 
-export const getHotelsbyUserId = async () => {
+export const getHotelsByUserId = async () => {
   try {
     const {userId} = auth()
     if(!userId) {
@@ -13,7 +13,8 @@ export const getHotelsbyUserId = async () => {
     });
     if (!hotels) return null;
     return hotels;
-  } catch (error: any) {
-    throw new Error(error);
+  } catch (error: unknown) {
+    console.error('Error fetching hotels by user:', error);
+    throw new Error(error instanceof Error ? error.message : 'Failed to fetch hotels');
   }
 };
