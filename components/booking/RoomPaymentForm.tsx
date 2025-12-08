@@ -79,7 +79,6 @@ const RoomPaymentForm = ({
       const bookings = await axios.get(
         `/api/booking/${bookingRoomData.room.id}`
       );
-      console.log("bookings", bookings.data);
       const roomBookingDates = bookings.data.map((booking: Booking) => {
         return {
           startDate: booking.startDate,
@@ -118,11 +117,10 @@ const RoomPaymentForm = ({
                 handleSetPaymentSuccess(true);
                 setLoading(false);
               })
-              .catch((error) => {
-                console.log(error);
+              .catch((error: any) => {
                 toast({
                   variant: "destructive",
-                  description: `${error}`,
+                  description: error.message || "Payment processing failed",
                 });
                 setLoading(false);
               });
@@ -131,12 +129,23 @@ const RoomPaymentForm = ({
           }
         });
     } catch (error: any) {
-      console.log(error);
+      toast({
+        variant: "destructive",
+        description: error.message || "An unexpected error occurred",
+      });
       setLoading(false);
     }
   };
-  if (!bookingRoomData?.startDate || !bookingRoomData?.endDate)
-    return <div>Please select a date to book</div>;
+  if (!bookingRoomData?.startDate || !bookingRoomData?.endDate) {
+    return (
+      <Alert>
+        <AlertTitle>Date Selection Required</AlertTitle>
+        <AlertDescription>
+          Please select check-in and check-out dates to proceed with booking.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   const startDate = moment(bookingRoomData?.startDate).format("YYYY -MM-DD");
   const endDate = moment(bookingRoomData?.endDate).format("YYYY -MM-DD");

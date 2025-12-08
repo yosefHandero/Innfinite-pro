@@ -10,7 +10,7 @@ const NewHotel = async () => {
   }
 
   return (
-    <div className="py-8">
+    <div className="py-8 md:py-12">
       <AddHotelForm hotel={null} />
     </div>
   );

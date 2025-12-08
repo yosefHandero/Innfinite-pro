@@ -158,7 +158,6 @@ const AddHotelForm = ({ hotel }: AddHotelFormProps) => {
   }, [form.watch("country"), form.watch("state")]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
     setLoading(true);
     if (hotel) {
       //update
@@ -172,11 +171,10 @@ const AddHotelForm = ({ hotel }: AddHotelFormProps) => {
           router.push(`/hotel/${res.data.id}`);
           setLoading(false);
         })
-        .catch((err) => {
-          console.log("error", err.response?.data);
+        .catch((err: any) => {
           toast({
             variant: "destructive",
-            description: "Something went wrong",
+            description: err.response?.data?.message || "Something went wrong",
           });
           setLoading(false);
         });
@@ -191,11 +189,10 @@ const AddHotelForm = ({ hotel }: AddHotelFormProps) => {
           router.push(`/hotel/${res.data.id}`);
           setLoading(false);
         })
-        .catch((err) => {
-          console.log("error", err.response?.data);
+        .catch((err: any) => {
           toast({
             variant: "destructive",
-            description: "Something went wrong",
+            description: err.response?.data?.message || "Something went wrong",
           });
           setLoading(false);
         });
@@ -216,11 +213,12 @@ const AddHotelForm = ({ hotel }: AddHotelFormProps) => {
       });
       router.push("/hotel/new");
     } catch (error: any) {
-      console.log(error);
       setDeletetingHotel(false);
       toast({
         variant: "destructive",
-        description: `Failed to delete hotel ${error.message}`,
+        description: `Failed to delete hotel: ${
+          error.message || "Unknown error"
+        }`,
       });
     }
   };
@@ -260,14 +258,14 @@ const AddHotelForm = ({ hotel }: AddHotelFormProps) => {
           <h3 className="text-lg font-semibold">
             {hotel ? "Edit Hotel" : "Add New Hotel"}
           </h3>
-          <div className="flex flex-col md:flex-row gap-20  p-6  rounded-t-md ">
+          <div className="flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-16 p-6 md:p-8 rounded-t-md">
             <div className="flex-1 flex flex-col gap-6">
               <FormField
                 control={form.control}
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Hotel Ttitle *</FormLabel>
+                    <FormLabel>Hotel Title *</FormLabel>
                     <FormDescription>Provide your hotel name</FormDescription>
                     <FormControl>
                       <Input placeholder="Beach Hotel" {...field} />
@@ -281,7 +279,7 @@ const AddHotelForm = ({ hotel }: AddHotelFormProps) => {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Hotel Descrioption *</FormLabel>
+                    <FormLabel>Hotel Description *</FormLabel>
                     <FormDescription>
                       Provide a detailed description of the hotel. This will be
                       shown to guests.
@@ -505,7 +503,6 @@ const AddHotelForm = ({ hotel }: AddHotelFormProps) => {
                               endpoint="imageUploader"
                               onClientUploadComplete={(res) => {
                                 // Do something with the response
-                                console.log("Files: ", res);
                                 setImage(res[0].url);
                                 toast({
                                   variant: "success",
@@ -641,7 +638,7 @@ const AddHotelForm = ({ hotel }: AddHotelFormProps) => {
                 name="locationDescription"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Location Descrioption *</FormLabel>
+                    <FormLabel>Location Description *</FormLabel>
                     <FormDescription>
                       Provide a detailed location description of the hotel. This
                       will be shown to guests.

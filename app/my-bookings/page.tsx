@@ -30,7 +30,7 @@ const MyBookings = async () => {
   }
 
   return (
-    <div className="flex flex-col gap-12 py-8">
+    <div className="flex flex-col gap-12 py-8 md:py-12">
       {!!bookingsIHaveMade?.length && (
         <div>
           <div className="flex items-center gap-2 mb-6">

@@ -6,10 +6,10 @@ import { HotelListSkeleton } from "@/components/hotel/HotelList";
 
 interface HomeProps {
   searchParams: {
-    title: string;
-    country: string;
-    state: string;
-    city: string;
+    title?: string;
+    country?: string;
+    state?: string;
+    city?: string;
   };
 }
 
@@ -24,7 +24,7 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <div className="flex flex-col min-h-screen">
       {!hasFilters && <HeroSection />}
-      <div className="flex-1 py-8">
+      <div className="flex-1 py-8 md:py-12">
         <Suspense fallback={<HotelListSkeleton />}>
           <HotelList hotels={hotels || []} />
         </Suspense>
